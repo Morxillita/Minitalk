@@ -1,27 +1,37 @@
-#include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include "ft_printf.h"
 
 void	signal_handler(int signum)
 {
-	if (signum == SIGUSR1)
-		write(1, "✅ Señal SIGUSR1 recibida\n", 26);
-	else if (signum == SIGUSR2)
-		write(1, "✅ Señal SIGUSR2 recibida\n", 26);
+	static unsigned char	c = 0;
+	static int				bit_count = 0;
+
+	c = c << 1;
+	if (signum == SIGUSR2)
+		c |= 1;
+	bit_count++;
+	if (bit_count == 8)
+	{
+		ft_printf("%c", c);
+		c = 0;
+		bit_count = 0;
+	}
 }
 
 int	main(void)
 {
 	struct sigaction	sa;
+	pid_t				pid;
+
+	pid = getpid();
+	ft_printf(" Server PID: %d\n", pid);
 
 	sa.sa_handler = signal_handler;
 	sa.sa_flags = SA_RESTART;
 	sigemptyset(&sa.sa_mask);
-
 	sigaction(SIGUSR1, &sa, NULL);
 	sigaction(SIGUSR2, &sa, NULL);
-
-	printf("PID del servidor: %d\n", getpid());
 
 	while (1)
 		pause();

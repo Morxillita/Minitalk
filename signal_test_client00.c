@@ -2,17 +2,23 @@
 #include <signal.h>
 #include <unistd.h>
 
-void	send_char(int pid, char c)
+int	main(int argc, char **argv)
 {
-	int	i = 7;
-
-	while (i >= 0)
+	if (argc != 3)
 	{
-		if ((c >> i) & 1)
-			kill(pid, SIGUSR2); // bit 1
-		else
-			kill(pid, SIGUSR1); // bit 0
-		usleep(100); // Espera un poco para que el server no se pierda señales
-		i--;
+		write(1, "Uso: ./client <PID> <1 o 2>\n", 29);
+		return (1);
 	}
+
+	int	pid = atoi(argv[1]);
+	int tipo = atoi(argv[2]);
+
+	if (tipo == 1)
+		kill(pid, SIGUSR1);
+	else if (tipo == 2)
+		kill(pid, SIGUSR2);
+	else
+		write(1, "Error: señal debe ser 1 o 2\n", 29);
+
+	return (0);
 }
